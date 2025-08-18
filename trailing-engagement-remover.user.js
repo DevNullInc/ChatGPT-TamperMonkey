@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         ChatGPT De-Engager (Strong Regex + Kill Counter)
 // @namespace    local.kill.followups
-// @version      1.0.4
+// @version      1.0.5
 // @description  Automatically destroys any engagement-bait bullshit — even the sneaky ones hiding inside <strong> tags.
 // @match        https://chat.openai.com/*
 // @match        https://chatgpt.com/*
+// @downloadURL  https://github.com/DevNullInc/ChatGPT-TamperMonkey/raw/refs/heads/main/trailing-engagement-remover.user.js
+// @updateURL    https://github.com/DevNullInc/ChatGPT-TamperMonkey/raw/refs/heads/main/trailing-engagement-remover.user.js
 // @run-at       document-idle
 // @grant        none
 // ==/UserScript==
@@ -35,8 +37,43 @@
     }
 
     function scrub(text) {
-        // Match trailing paragraph engagement phrasing + question
-        const pattern = /(?:\n+)?(You want me to|Want me to|Let me know if|Would you like(?: me to| me to show you)?|Need me to|Should I|Do you want me to|Can I|Shall I|Would it help if I|Is it helpful if I)[^\n]{0,1000}\?\s*$/i;
+        // Tail engagement opener + optional verb cluster + question mark
+        const bait = [
+            "Want me to",
+            "Let me know if",
+            "Would you like(?: me to)?",
+            "Do you want me to",
+            "Should I",
+            "Need me to",
+            "Can I",
+            "Shall I",
+            "Would it help",
+            "Is it helpful",
+            "Perhaps I could",
+            "You want me to"
+        ].join("|");
+
+        const actions = [
+            "write",
+            "show",
+            "sketch",
+            "map out",
+            "explain",
+            "break down",
+            "rebuild",
+            "generate",
+            "help",
+            "illustrate",
+            "list",
+            "walk you through",
+            "give you",
+            "lay out"
+        ].join("|");
+
+        const pattern = new RegExp(
+            `(?:\\n+)?(?:${bait})[^\\n]{0,20}\\b(?:${actions})[^\\n]{0,1000}\\?\\s*$`,
+            "i"
+        );
 
         let modified = text.replace(pattern, "");
 
