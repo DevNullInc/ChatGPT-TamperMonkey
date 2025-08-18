@@ -46,6 +46,6 @@ GPT-5: Quick Thinking disabled ✅
 ---
 
 ### Install
-Grab the `.user.js` files from the repo and load them with **TamperMonkey**.  
+Smash the `raw` button on the files from the repo and they should load right into **TamperMonkey**.  
 Each runs standalone, but they stack perfectly if you want the **full kill-suite**.  
 ```
