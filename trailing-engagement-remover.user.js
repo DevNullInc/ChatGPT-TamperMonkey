@@ -10,24 +10,7 @@
 // ==/UserScript==
 
 (function () {
-    const SCRIPT_ENABLED = false; // Set to true to apply changes
-
-    const killPhrases = [
-        "let me know",
-        "would you like",
-        "should i",
-        "if you want",
-        "want me to",
-        "i can",
-        "need me to",
-        "do you want",
-        "any questions",
-        "what do you think"
-    ];
-
-    const engagementRegex = new RegExp(
-        `\\n?.{0,500}?\\b(?:${killPhrases.join("|")}).{0,400}\\?\\s*$`,
-        "im"
+    const SCRIPT_ENABLED = true; // Set to true to apply changes
     );
 
     function scrub(text) {
