@@ -3,7 +3,7 @@
 // @namespace    https://tampermonkey.local
 // @version      1.0.2
 // @description  Automatically clicks "Get a quick answer" on ChatGPT when using GPT-5 Thinking (with a UI toggle + model check + minimize panel button).
-// @author       you
+// @author       DevNullInc
 // @match        https://chat.openai.com/*
 // @match        https://chatgpt.com/*
 // @run-at       document-idle
