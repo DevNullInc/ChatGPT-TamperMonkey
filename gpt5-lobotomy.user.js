@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Quick Answer Auto-Clicker (GPT-5 Thinking) + Minimize UI
 // @namespace    https://tampermonkey.local
-// @version      1.0.5
+// @version      1.0.6
 // @description  Automatically clicks "Get a quick answer" on ChatGPT when using GPT-5 Thinking (with a UI toggle + model check + minimize panel button).
 // @author       DevNullInc
 // @match        https://chat.openai.com/*
@@ -20,7 +20,7 @@
     const DEFAULT_CFG = {
         enabled: true,
         requireModelText: true,
-        modelTextRegex: '(\\bchatgpt\\s*5\\b(?:\\s+\\w+)*|\\bo3\\b)'
+        modelTextRegex: '(\\bchatgpt\\s*5\\b(?:\\s+\\w+)*|\\bo3\\b)',
         quickAnswerTextRegex: '(\\bGet a quick answer\\b|\\bQuick answer\\b)',
         clickDebounceMs: 3000,
         maxClicksPerSession: 1000,
