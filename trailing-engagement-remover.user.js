@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         ChatGPT De-Engager (Strong Regex Edition)
+// @name         ChatGPT De-Engager (Strong Regex + Kill Counter)
 // @namespace    local.kill.followups
-// @description  Automatically destroys any engagement-bait bullshit.
-// @version      1.0.3
+// @version      1.0.4
+// @description  Automatically destroys any engagement-bait bullshit — even the sneaky ones hiding inside <strong> tags.
 // @match        https://chat.openai.com/*
 // @match        https://chatgpt.com/*
 // @run-at       document-idle
@@ -10,17 +10,38 @@
 // ==/UserScript==
 
 (function () {
-    const SCRIPT_ENABLED = true; // Set to true to apply changes
-    );
+    const SCRIPT_ENABLED = true; // Set to false to test without modifying anything
+
+    let killCount = 0;
+    let killDisplay = null;
+
+    function createKillCounter() {
+        killDisplay = document.createElement("div");
+        killDisplay.textContent = "Engagement tails snipped: 0";
+        killDisplay.style.position = "fixed";
+        killDisplay.style.top = "8px";
+        killDisplay.style.left = "50%";
+        killDisplay.style.transform = "translateX(-50%)";
+        killDisplay.style.zIndex = "9999";
+        killDisplay.style.background = "#111";
+        killDisplay.style.color = "#0f0";
+        killDisplay.style.padding = "4px 10px";
+        killDisplay.style.borderRadius = "6px";
+        killDisplay.style.fontSize = "12px";
+        killDisplay.style.fontFamily = "monospace";
+        killDisplay.style.opacity = "0.85";
+        killDisplay.style.pointerEvents = "none";
+        document.body.appendChild(killDisplay);
+    }
 
     function scrub(text) {
-        // Kill trailing multi-line engagement paragraph ending in a question mark
-        const multilineTail = /(?:\n{2,}|\n?)(You want me to|Want me to|Let me know if|Would you like me to|Need me to|Should I|Do you want me to|Can I|Shall I|Would you like).*?\?\s*$/ims;
+        // Strong trailing-paragraph pattern with leading bait phrases
+        const pattern = /(?:\n+)?(You want me to|Want me to|Let me know if|Would you like me to|Need me to|Should I|Do you want me to|Can I|Shall I|Would you like)[^\n]{0,1000}\?\s*$/i;
 
-        let modified = text.replace(multilineTail, "");
+        let modified = text.replace(pattern, "");
 
-        // Fallback: short trailing one-liner question
         if (modified === text) {
+            // Fallback: short trailing one-liner question
             modified = modified.replace(/\n?.{1,300}\?\s*$/m, "");
         }
 
@@ -28,28 +49,29 @@
     }
 
     function cleanNode(node) {
-        const blocks = node.querySelectorAll('[data-message-author-role="assistant"] .markdown, [data-message-author-role="assistant"] .prose, [data-message-author-role="assistant"]');
+        const paragraphs = node.querySelectorAll('[data-message-author-role="assistant"] .markdown p');
 
-        blocks.forEach(el => {
-            if (el.closest('pre, code')) return;
+        paragraphs.forEach(paragraph => {
+            if (paragraph.closest('pre, code')) return;
 
-            const before = el.innerText;
-            const after = scrub(before);
+            const fullText = paragraph.innerText;
+            const cleanedText = scrub(fullText);
 
-            if (after !== before) {
+            if (cleanedText !== fullText) {
                 if (!SCRIPT_ENABLED) {
                     console.log("[De-Engager] Would remove engagement tail:", {
-                        original: before,
-                        cleaned: after
+                        original: fullText,
+                        cleaned: cleanedText
                     });
                     return;
                 }
 
-                el.childNodes.forEach(child => {
-                    if (child.nodeType === Node.TEXT_NODE) {
-                        child.textContent = scrub(child.textContent);
-                    }
-                });
+                // Replace entire paragraph with plain cleaned text
+                paragraph.replaceChildren(document.createTextNode(cleanedText));
+                killCount++;
+                if (killDisplay) {
+                    killDisplay.textContent = `Engagement tails snipped: ${killCount}`;
+                }
             }
         });
     }
@@ -68,6 +90,7 @@
 
     mo.observe(document.body, { subtree: true, childList: true, characterData: true });
 
-    // Initial scrub
+    // Initial sweep and HUD
     cleanNode(document.body);
+    createKillCounter();
 })();
