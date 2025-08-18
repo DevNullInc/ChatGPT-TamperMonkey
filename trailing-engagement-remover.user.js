@@ -36,54 +36,56 @@
         document.body.appendChild(killDisplay);
     }
 
-    function scrub(text) {
-        const bait = [
-            "Want me to",
-            "Let me know if",
-            "Would you like(?: me to)?",
-            "Do you want me to",
-            "Should I",
-            "Need me to",
-            "Can I",
-            "Shall I",
-            "Would it help",
-            "Is it helpful",
-            "Perhaps I could",
-            "You want me to"
-        ].join("|");
+function scrub(text) {
+    const bait = [
+        "Want me to",
+        "Let me know if",
+        "Would you like(?: me to)?",
+        "Do you want me to",
+        "Should I",
+        "Need me to",
+        "Can I",
+        "Shall I",
+        "Would it help",
+        "Is it helpful",
+        "Perhaps I could",
+        "You want me to"
+    ].join("|");
 
-        const actions = [
-            "write",
-            "show",
-            "sketch",
-            "map out",
-            "explain",
-            "break down",
-            "rebuild",
-            "generate",
-            "help",
-            "illustrate",
-            "list",
-            "walk you through",
-            "give you",
-            "lay out"
-        ].join("|");
+    const actions = [
+        "write",
+        "show",
+        "sketch",
+        "map out",
+        "explain",
+        "break down",
+        "rebuild",
+        "generate",
+        "help",
+        "illustrate",
+        "list",
+        "walk you through",
+        "give you",
+        "lay out"
+    ].join("|");
 
-        // Match paragraph with bait + optional action + question mark somewhere
-        const pattern = new RegExp(
-            `(?:\\n+)?(?:${bait})[^\\n]{0,20}\\b(?:${actions})[^\\n]{0,1000}\\?.*`,
-            "i"
-        );
+    // Allow 0–4 filler words between bait and action
+    const flexibleGap = "(?:\\s+\\w+){0,4}\\s+";
 
-        let modified = text.replace(pattern, "");
+    const pattern = new RegExp(
+        `(?:\\n+)?\\s*(?:${bait})${flexibleGap}(?:${actions})[^\\n]{0,800}?\\?\\s*$`,
+        "i"
+    );
 
-        if (modified === text) {
-            // Fallback: short trailing question sentence
-            modified = modified.replace(/\n?.{1,300}\?\s*$/m, "");
-        }
+    let modified = text.replace(pattern, "");
 
-        return modified.trimEnd();
+    if (modified === text) {
+        // Fallback: final line that's a short trailing question
+        modified = modified.replace(/\n?.{1,280}\?\s*$/m, "");
     }
+
+    return modified.trimEnd();
+}
     function cleanNode(node) {
         const paragraphs = node.querySelectorAll('[data-message-author-role="assistant"] .markdown p');
 
