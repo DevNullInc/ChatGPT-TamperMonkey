@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT De-Engager (Strong Regex + Kill Counter)
 // @namespace    local.kill.followups
-// @version      1.0.6
+// @version      1.0.7
 // @description  Automatically destroys any engagement-bait bullshit — even the sneaky ones hiding inside <strong> tags.
 // @match        https://chat.openai.com/*
 // @match        https://chatgpt.com/*
