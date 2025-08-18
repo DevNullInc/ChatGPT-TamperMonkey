@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT De-Engager (Strong Regex + Kill Counter)
 // @namespace    local.kill.followups
-// @version      1.1.2
+// @version      1.2.0
 // @description  Automatically destroys any engagement-bait bullshit — even the sneaky ones hiding inside <strong> tags.
 // @author       DevNullInc
 // @match        https://chat.openai.com/*
@@ -13,44 +13,51 @@
 // ==/UserScript==
 
 (function () {
-    const SCRIPT_ENABLED = true; // Set to false to test without modifying anything
+    const SCRIPT_ENABLED = true;
     let killCount = 0;
     let killDisplay = null;
 
     function createKillCounter() {
-        if (killDisplay) return; // Avoid duplicate creation
-
+        if (killDisplay) return;
         killDisplay = document.createElement("div");
         killDisplay.textContent = "Engagement tails snipped: 0";
-        killDisplay.style.position = "fixed";
-        killDisplay.style.top = "8px";
-        killDisplay.style.left = "50%";
-        killDisplay.style.transform = "translateX(-50%)";
-        killDisplay.style.zIndex = "999999"; // Increased z-index for better visibility
-        killDisplay.style.background = "#111";
-        killDisplay.style.color = "#0f0";
-        killDisplay.style.padding = "4px 10px";
-        killDisplay.style.borderRadius = "6px";
-        killDisplay.style.fontSize = "12px";
-        killDisplay.style.fontFamily = "monospace";
-        killDisplay.style.opacity = "0.85";
-        killDisplay.style.pointerEvents = "none";
-
-        if (document.body) {
-            document.body.appendChild(killDisplay);
-            console.log("[De-Engager] Kill counter created and appended to body.");
-        } else {
-            console.warn("[De-Engager] Document body is not available yet.");
-        }
+        Object.assign(killDisplay.style, {
+            position: "fixed",
+            top: "8px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: "999999",
+            background: "#111",
+            color: "#0f0",
+            padding: "4px 10px",
+            borderRadius: "6px",
+            fontSize: "12px",
+            fontFamily: "monospace",
+            opacity: "0.85",
+            pointerEvents: "none"
+        });
+        document.body?.appendChild(killDisplay);
     }
 
     function updateKillCounter() {
         if (killDisplay) {
             killDisplay.textContent = `Engagement tails snipped: ${killCount}`;
-            console.log(`[De-Engager] Kill counter updated to: ${killCount}`);
-        } else {
-            console.warn("[De-Engager] Kill display is not initialized.");
         }
+    }
+
+    // 🔧 Flatten text BEFORE passing to regex
+    function flattenText(input) {
+        return String(input || "")
+            .replace(/[*_~`]+/g, '') // Markdown
+            .replace(/<\/?(strong|em|b|i|u|span)[^>]*>/gi, '') // HTML tags
+            .replace(/[“”"']/g, '"') // Smart quotes
+            .replace(/[\u200B-\u200D\uFEFF]/g, '') // Invisible junk
+            .replace(/\b(give|offer|provide)\b/gi, "give you")
+            .replace(/\b(draw|illustrate|sketch)\b/gi, "illustrate")
+            .replace(/\b(demonstrate|showcase|show)\b/gi, "show")
+            .replace(/\b(build|construct|assemble|map out)\b/gi, "build")
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
     function scrub(text) {
@@ -89,12 +96,7 @@
             "pre[- ]?process"
         ].join("|");
 
-        const cleanText = String(text || "")
-        .replace(/[*_~`]+/g, '')
-        .replace(/<\/?strong>|<\/?em>|<\/?b>/gi, '')
-        .replace(/<[^>]+>/g, '')
-        .trim();
-
+        const cleanText = flattenText(text); // 🧼 Normalize input first
         const flexibleGap = "(?:\\s+\\w+){0,6}\\s*";
         const pattern = new RegExp(
             `(?:\\n+)?\\s*(?:${bait})${flexibleGap}(?:${actions})[^\\n]{0,1000}?\\?\\s*$`,
@@ -105,7 +107,6 @@
         if (modified === cleanText) {
             modified = cleanText.replace(/\n?.{1,300}\?\s*$/m, "");
         }
-
         return modified.trimEnd();
     }
 
@@ -163,31 +164,20 @@
         });
     }
 
-    // Initialize directly since the script runs at document-idle
-    createKillCounter(); // Create the counter immediately
-    updateKillCounter(); // Ensure it's updated initially
+    // 🚀 Init
+    createKillCounter();
+    updateKillCounter();
 
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.addedNodes.length) {
-                mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === 1) {
-                        cleanNode(node);
-                    }
-                });
-            }
-        });
-        console.log("[De-Engager] Mutation observed; checking for new nodes.");
+    const observer = new MutationObserver(mutations => {
+        for (const m of mutations) {
+            m.addedNodes.forEach(n => {
+                if (n.nodeType === 1) cleanNode(n);
+            });
+        }
     });
 
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
+    observer.observe(document.body, { childList: true, subtree: true });
 
-    // Perform initial cleanup
-    const nodes = document.querySelectorAll('[data-message-author-role="assistant"]');
-    nodes.forEach(cleanNode);
-    console.log("[De-Engager] Initial cleanup performed.");
-
+    // Initial sweep
+    document.querySelectorAll('[data-message-author-role="assistant"]').forEach(cleanNode);
 })();
