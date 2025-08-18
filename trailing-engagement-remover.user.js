@@ -1,12 +1,10 @@
 // ==UserScript==
 // @name         ChatGPT De-Engager (Strong Regex + Kill Counter)
 // @namespace    local.kill.followups
-// @version      1.0.5
+// @version      1.0.6
 // @description  Automatically destroys any engagement-bait bullshit — even the sneaky ones hiding inside <strong> tags.
 // @match        https://chat.openai.com/*
 // @match        https://chatgpt.com/*
-// @downloadURL  https://github.com/DevNullInc/ChatGPT-TamperMonkey/raw/refs/heads/main/trailing-engagement-remover.user.js
-// @updateURL    https://github.com/DevNullInc/ChatGPT-TamperMonkey/raw/refs/heads/main/trailing-engagement-remover.user.js
 // @run-at       document-idle
 // @grant        none
 // ==/UserScript==
@@ -37,7 +35,6 @@
     }
 
     function scrub(text) {
-        // Tail engagement opener + optional verb cluster + question mark
         const bait = [
             "Want me to",
             "Let me know if",
@@ -70,21 +67,21 @@
             "lay out"
         ].join("|");
 
+        // Match paragraph with bait + optional action + question mark somewhere
         const pattern = new RegExp(
-            `(?:\\n+)?(?:${bait})[^\\n]{0,20}\\b(?:${actions})[^\\n]{0,1000}\\?\\s*$`,
+            `(?:\\n+)?(?:${bait})[^\\n]{0,20}\\b(?:${actions})[^\\n]{0,1000}\\?.*`,
             "i"
         );
 
         let modified = text.replace(pattern, "");
 
         if (modified === text) {
-            // Fallback: short trailing one-liner question
+            // Fallback: short trailing question sentence
             modified = modified.replace(/\n?.{1,300}\?\s*$/m, "");
         }
 
         return modified.trimEnd();
     }
-
     function cleanNode(node) {
         const paragraphs = node.querySelectorAll('[data-message-author-role="assistant"] .markdown p');
 
