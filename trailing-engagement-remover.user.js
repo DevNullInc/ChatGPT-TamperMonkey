@@ -69,4 +69,18 @@
 
   const mo = new MutationObserver(muts => {
     for (const m of muts) {
-      if (m.t
+      if (m.type === "childList") {
+        m.addedNodes.forEach(n => {
+          if (n.nodeType === 1) cleanNode(n);
+        });
+      } else if (m.type === "characterData" && m.target.parentElement) {
+        cleanNode(m.target.parentElement);
+      }
+    }
+  });
+
+  mo.observe(document.body, { subtree: true, childList: true, characterData: true });
+
+  // Initial scrub
+  cleanNode(document.body);
+})();
