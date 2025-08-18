@@ -5,6 +5,8 @@
 // @description  Automatically destroys any engagement-bait bullshit — even the sneaky ones hiding inside <strong> tags.
 // @match        https://chat.openai.com/*
 // @match        https://chatgpt.com/*
+// @downloadURL  https://github.com/DevNullInc/ChatGPT-TamperMonkey/raw/refs/heads/main/trailing-engagement-remover.user.js
+// @updateURL    https://github.com/DevNullInc/ChatGPT-TamperMonkey/raw/refs/heads/main/trailing-engagement-remover.user.js
 // @run-at       document-idle
 // @grant        none
 // ==/UserScript==
