@@ -1,10 +1,13 @@
 // ==UserScript==
 // @name         ChatGPT Time Context Injector (Hybrid ISO + Human View + Bubble-Preserving Swap)
 // @namespace    net.user.tamper.timectx
-// @version      2.4.0
+// @version      2.4.1
 // @description  Injects ISO time metadata for AI, shows human-readable format in chat via post-render swap, preserving user bubble alignment.
+// @author       DevNullInc
 // @match        https://chat.openai.com/*
 // @match        https://chatgpt.com/*
+// @downloadURL  https://github.com/DevNullInc/ChatGPT-TamperMonkey/raw/refs/heads/main/time-injector.user.js
+// @updateURL    https://github.com/DevNullInc/ChatGPT-TamperMonkey/raw/refs/heads/main/time-injector.user.js
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @run-at       document-idle
