@@ -35,8 +35,8 @@
     }
 
     function scrub(text) {
-        // Strong trailing-paragraph pattern with leading bait phrases
-        const pattern = /(?:\n+)?(You want me to|Want me to|Let me know if|Would you like me to|Need me to|Should I|Do you want me to|Can I|Shall I|Would you like)[^\n]{0,1000}\?\s*$/i;
+        // Match trailing paragraph engagement phrasing + question
+        const pattern = /(?:\n+)?(You want me to|Want me to|Let me know if|Would you like(?: me to| me to show you)?|Need me to|Should I|Do you want me to|Can I|Shall I|Would it help if I|Is it helpful if I)[^\n]{0,1000}\?\s*$/i;
 
         let modified = text.replace(pattern, "");
 
