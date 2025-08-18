@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         ChatGPT Quick Answer Auto-Clicker (GPT-5 Thinking) + Minimize UI
 // @namespace    https://tampermonkey.local
-// @version      1.0.2
+// @version      1.0.4
 // @description  Automatically clicks "Get a quick answer" on ChatGPT when using GPT-5 Thinking (with a UI toggle + model check + minimize panel button).
 // @author       DevNullInc
 // @match        https://chat.openai.com/*
 // @match        https://chatgpt.com/*
+// @downloadURL  https://github.com/DevNullInc/ChatGPT-TamperMonkey/raw/refs/heads/main/gpt5-lobotomy.user.js
+// @updateURL    https://github.com/DevNullInc/ChatGPT-TamperMonkey/raw/refs/heads/main/gpt5-lobotomy.user.js
 // @run-at       document-idle
 // @grant        none
 // @license      MIT
