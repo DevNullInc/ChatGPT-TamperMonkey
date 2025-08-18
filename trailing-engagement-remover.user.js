@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         ChatGPT De-Engager (Safe Version)
+// @name         ChatGPT De-Engager (Strong Regex Edition)
 // @namespace    local.kill.followups
 // @match        https://chat.openai.com/*
 // @match        https://chatgpt.com/*
@@ -8,25 +8,36 @@
 // ==/UserScript==
 
 (function () {
-  // Toggle this to true to actually make changes, or false to only log them
-  const SCRIPT_ENABLED = false;
+  const SCRIPT_ENABLED = false; // Set to true to apply changes
 
-  const killLines = [
-    /^(?:let me know|would you like|should i|if you want|want me to|i can|need me to|do you want|any questions|what do you think)\b.*$/i
+  const killPhrases = [
+    "let me know",
+    "would you like",
+    "should i",
+    "if you want",
+    "want me to",
+    "i can",
+    "need me to",
+    "do you want",
+    "any questions",
+    "what do you think"
   ];
 
-  function scrub(text) {
-    let original = text;
+  const engagementRegex = new RegExp(
+    `\\n?.{0,500}?\\b(?:${killPhrases.join("|")}).{0,400}\\?\\s*$`,
+    "im"
+  );
 
-    // Remove lines that match engagement patterns
-    for (const rx of killLines) {
-      text = text.replace(new RegExp(rx.source + "\\n?$", rx.flags + "m"), "");
+  function scrub(text) {
+    // Step 1: Try to match engagement-style paragraph at end
+    let modified = text.replace(engagementRegex, "");
+
+    // Step 2: Fall back to generic short question removal if nothing matched
+    if (modified === text) {
+      modified = modified.replace(/\n?.{1,300}\?\s*$/m, "");
     }
 
-    // Remove short trailing question at end
-    text = text.replace(/\n?.{1,300}\?\s*$/m, "");
-
-    return text.trimEnd();
+    return modified.trimEnd();
   }
 
   function cleanNode(node) {
@@ -40,11 +51,13 @@
 
       if (after !== before) {
         if (!SCRIPT_ENABLED) {
-          console.log("[De-Engager] Match found. Would scrub:", { original: before, cleaned: after });
+          console.log("[De-Engager] Would remove engagement tail:", {
+            original: before,
+            cleaned: after
+          });
           return;
         }
 
-        // Safe: only scrub text nodes, preserve formatting
         el.childNodes.forEach(child => {
           if (child.nodeType === Node.TEXT_NODE) {
             child.textContent = scrub(child.textContent);
@@ -56,18 +69,4 @@
 
   const mo = new MutationObserver(muts => {
     for (const m of muts) {
-      if (m.type === "childList") {
-        m.addedNodes.forEach(n => {
-          if (n.nodeType === 1) cleanNode(n);
-        });
-      } else if (m.type === "characterData" && m.target.parentElement) {
-        cleanNode(m.target.parentElement);
-      }
-    }
-  });
-
-  mo.observe(document.body, { subtree: true, childList: true, characterData: true });
-
-  // First pass on initial content
-  cleanNode(document.body);
-})();
+      if (m.t
