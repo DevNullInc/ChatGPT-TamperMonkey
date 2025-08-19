@@ -110,28 +110,40 @@
         return modified.trimEnd();
     }
 
-    function scrubEngagementTail(pNode) {
-        try {
-            if (!pNode || !pNode.textContent) return false;
-            if (!pNode.dataset?.isLastNode && !pNode.dataset?.isOnlyNode) return false;
+function scrubEngagementTail(pNode) {
+    try {
+        if (!pNode || !pNode.textContent) return false;
+        if (!pNode.dataset?.isLastNode && !pNode.dataset?.isOnlyNode) return false;
 
-            const raw = pNode.innerText || pNode.textContent || "";
-            const cleaned = scrub(raw);
+        const raw = pNode.innerText || pNode.textContent || "";
+        const length = raw.trim().length;
 
-            if (cleaned !== raw.trim()) {
-                if (SCRIPT_ENABLED) {
-                    pNode.remove();
-                    return true;
-                } else {
-                    console.log("[De-Engager] Would remove full <p> node:", { original: raw });
-                }
+        const hasHTMLBait = /<em>|<strong>|<b>/i.test(pNode.innerHTML);
+        const endsWithQ = /\?\s*$/.test(raw);
+        const isShort = length <= 350;
+
+        const cleaned = scrub(raw);
+
+        if (
+            cleaned !== raw.trim() || 
+            (SCRIPT_ENABLED && endsWithQ && isShort) || 
+            (SCRIPT_ENABLED && hasHTMLBait && endsWithQ)
+        ) {
+            if (SCRIPT_ENABLED) {
+                pNode.remove();
+                return true;
+            } else {
+                console.log("[De-Engager] Would remove <p> due to bait:", {
+                    original: raw,
+                    cleaned
+                });
             }
-        } catch (e) {
-            console.warn("Error in scrubEngagementTail:", e);
         }
-        return false;
+    } catch (e) {
+        console.warn("Error in scrubEngagementTail:", e);
     }
-
+    return false;
+}
     function cleanNode(node) {
         const paragraphs = node.querySelectorAll('[data-message-author-role="assistant"] .markdown p');
 
