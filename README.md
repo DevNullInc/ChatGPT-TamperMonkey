@@ -1,3 +1,5 @@
+###DUE TO PRIVACY ISSUES ON CHATGPT AND THEIR KNEEJERK REACTIONS OF SCANNING EVERYBODYS CHATS FOR ILLEGAL CONTENT I WILL NOT BE UPDATING THESE IN THE FUTURE.
+
 # ChatGPT-TamperMonkey Tools
 
 A toolkit of browser userscripts that put ChatGPT back in your hands — no fluff, no hand-holding, no engagement bait.  
